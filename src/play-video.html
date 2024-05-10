@@ -1,35 +1,30 @@
+<eos-container header="Type">
+	<firebot-radios
+		options="{ local: 'Local file', folderRandom: 'Random from folder' }"
+		model="effect.videoType"
+		inline="true"
+		style="padding-bottom: 5px;"
+	/>
+</eos-container>
+
 <eos-container header="Video">
     <div style="padding-bottom: 10px">
-        <div ng-if="effect.videoType == 'Local Video'">
+        <div ng-if="effect.videoType == 'local'">
             <video width="350" controls ng-src="{{effect.file}}">
             </video>
         </div>
-        <div ng-if="effect.videoType == 'Random From Folder'">
+        <div ng-if="effect.videoType == 'folderRandom'">
             <img src="../images/placeholders/video.png" style="width: 350px;object-fit: scale-down;background: #d7d7d7">
         </div>
     </div>
 
-    <div class="btn-group" style="margin-bottom: 10px;">
-        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-            <span class="change-scene-type-effect-type">{{effect.videoType ? effect.videoType : "Pick one"}}</span> <span class="caret"></span>
-        </button>
-        <ul class="dropdown-menu">
-            <li ng-click="effect.reset = false">
-                <a ng-click="setVideoType('Local Video')" href>Local Video</a>
-            </li>
-            <li ng-click="effect.reset = false">
-                <a ng-click="setVideoType('Random From Folder')" href>Random From Folder</a>
-            </li>
-        </ul>
-    </div>
-
-    <div ng-show="effect.videoType == 'Local Video'" class="input-group">
+    <div ng-show="effect.videoType == 'local'" class="input-group">
         <file-chooser
             model="effect.file"
             options="{ filters: [ {name: 'Video', extensions: ['mp4', 'webm', 'ogv']} ]}"
         ></file-chooser>
     </div>
-    <div ng-show="effect.videoType == 'Random From Folder'" class="input-group">
+    <div ng-show="effect.videoType == 'folderRandom'" class="input-group">
         <file-chooser
             model="effect.folder"
             options="{ directoryOnly: true, filters: [], title: 'Select Video Folder'}"
@@ -37,7 +32,7 @@
     </div>
 </eos-container>
 
-<eos-container header="Clear Played Videos" ng-if="effect.videoType == 'Random From Folder'" pad-top="true">
+<eos-container header="Clear Played Videos" ng-if="effect.videoType == 'folderRandom'" pad-top="true">
     <p>
         This will clear the played videos cache.
         <br>

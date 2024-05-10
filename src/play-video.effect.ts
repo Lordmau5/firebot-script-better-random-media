@@ -6,8 +6,8 @@ import {
 } from './main';
 import template from './play-video.html';
 import {
-	videoManager
-} from './video-manager';
+	mediaManager
+} from './media-manager';
 import EffectType = Effects.EffectType;
 
 const wait = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
@@ -15,7 +15,7 @@ const wait = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 interface EffectModel {
 	id: string;
 
-	videoType: 'Local Video' | 'Random From Folder';
+	videoType: 'local' | 'folderRandom';
 	file: string;
 
 	wait: boolean;
@@ -73,11 +73,10 @@ function getRandomPresetLocation(): string {
 
 const effect: EffectType<EffectModel & OverlayData> = {
 	definition: {
-		id: 'lordmau5:playvideo:better-random-video',
+		id: 'lordmau5:better-random-media:better-random-video',
 		name: 'Better Random Video',
 		description: 'Improved version of the \'Play Random Video\' effect with proper folder randomness and effect output support',
 		icon: 'fad fa-video',
-		// @ts-ignore
 		categories: [
 			'common',
 			'overlay'
@@ -120,7 +119,10 @@ const effect: EffectType<EffectModel & OverlayData> = {
 			played: 0,
 			total: 0
 		};
-		$q.when(backendCommunicator.fireEventAsync('better-random-video:request-played-video-count', $scope.effect.id))
+		$q.when(backendCommunicator.fireEventAsync('lordmau5:better-random-media:request-played-media-count', {
+			effect_id: $scope.effect.id,
+			type: 'VIDEO'
+		}))
 			.then((result: { played: number, total: number }) => {
 				$scope.playedData = {
 					status: 'success',
@@ -131,18 +133,20 @@ const effect: EffectType<EffectModel & OverlayData> = {
 
 		// Clear videos played state
 		$scope.clearVideosPlayed = function() {
-			backendCommunicator.fireEvent('better-random-video:clear-videos-played', $scope.effect.id);
+			backendCommunicator.fireEvent('lordmau5:better-random-media:clear-media-played', {
+				effect_id: $scope.effect.id,
+				type: 'VIDEO'
+			});
 			$scope.playedVideosCleared = true;
 
 			// @ts-ignore
 			$scope.playedData.played = 0;
 		};
 
-		// Set Video Type
-		$scope.setVideoType = function(type: 'Local Video' | 'Random From Folder') {
-			$scope.effect.videoType = type;
-			$scope.effect.file = '';
-		};
+
+		if ($scope.effect.videoType == null) {
+			$scope.effect.videoType = 'local';
+		}
 
 		if ($scope.effect.volume == null) {
 			$scope.effect.volume = 5;
@@ -179,8 +183,12 @@ const effect: EffectType<EffectModel & OverlayData> = {
 	optionsValidator: effect => {
 		const errors = [];
 
-		if (effect.file == null) {
-			errors.push('Please select a file or folder.');
+		if (effect.videoType === 'local' && !effect.file?.length) {
+			errors.push('Please select a file.');
+		}
+
+		if (effect.videoType === 'folderRandom' && !effect.folder?.length) {
+			errors.push('Please select a folder.');
 		}
 
 		return errors;
@@ -217,14 +225,14 @@ const effect: EffectType<EffectModel & OverlayData> = {
 			overlayInstance: null
 		};
 
-		if (effect.videoType === 'Random From Folder') {
+		if (effect.videoType === 'folderRandom') {
 			// Update the videos in the database
-			if (!await videoManager.updateVideos(effect.id, effect.folder)) {
+			if (!await mediaManager.updateMedia(effect.id, 'VIDEO', effect.folder)) {
 				return;
 			}
 
 			// Get a random video from the videos array that isn't played
-			const video = videoManager.getUnplayedVideo(effect.id);
+			const video = mediaManager.getUnplayedMedia(effect.id, 'VIDEO');
 
 			if (video != null) {
 				data.filepath = video.path;
@@ -256,10 +264,10 @@ const effect: EffectType<EffectModel & OverlayData> = {
 		// @ts-ignore
 		data.resourceToken = modules.resourceTokenManager.storeResourcePath(
 			data.filepath,
-			duration
+			Math.max(1, duration)
 		);
 		// send event to the overlay
-		modules.httpServer.sendToOverlay('better-random-video', data);
+		modules.httpServer.sendToOverlay('lordmau5:better-random-media:video', data);
 
 		if (effect.wait) {
 			let internalDuration: any = data.videoDuration;
@@ -282,7 +290,7 @@ const effect: EffectType<EffectModel & OverlayData> = {
 			js: []
 		},
 		event: {
-			name: 'better-random-video',
+			name: 'lordmau5:better-random-media:video',
 			onOverlayEvent: (event: any) => {
 				// @ts-ignore
 				if (!startedVidCache) {

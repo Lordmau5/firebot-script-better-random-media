@@ -11,16 +11,16 @@ import {
 	autoload
 } from './autoload';
 import {
-	createVideoManager
-} from './video-manager';
+	createMediaManager
+} from './media-manager';
 
 const script: Firebot.CustomScript = {
 	getScriptManifest: () => {
 		return {
-			name: 'Better Random Video',
-			description: 'A custom script that adds an improved \'Play Random Video\' effect with proper folder randomness and effect output support',
+			name: 'Better Random Media',
+			description: 'A custom script that adds an improved \'Play Random Video\' and \'Play Random Sound\' effect with proper folder randomness and effect output support',
 			author: 'Lordmau5',
-			version: '1.0.4',
+			version: '1.1.0',
 			firebotVersion: '5'
 		};
 	},
@@ -30,8 +30,8 @@ const script: Firebot.CustomScript = {
 	},
 	run: async runRequest => {
 		const eventSource: EventSource = {
-			id: 'better-random-video',
-			name: 'Better Random Video',
+			id: 'lordmau5:better-random-media',
+			name: 'Better Random Media',
 			events: []
 		};
 		autoload(runRequest.modules, eventSource);
@@ -39,7 +39,7 @@ const script: Firebot.CustomScript = {
 		settings = runRequest.firebot.settings;
 
 		try {
-			createVideoManager(modules.path.join(SCRIPTS_DIR, '..', 'db', 'betterRandomVideo.db'), modules);
+			createMediaManager(modules.path.join(SCRIPTS_DIR, '..', 'db', 'betterRandomMedia.db'), modules);
 		}
 		catch (error) {
 			// eslint-disable-next-line no-debugger
