@@ -119,6 +119,22 @@ class MediaManager {
 		this.updateDatabase(effect_id, type, media);
 	}
 
+	public setAllEffectsUnplayed(): void {
+		const videoEffects: Record<string, Media[]> = this._db.getData(this.getPathForType('VIDEO'));
+
+		Object.values(videoEffects).forEach(medias => {
+			medias.forEach(media => media.played = false);
+		});
+		this._db.push(this.getPathForType('VIDEO'), videoEffects, true);
+
+		const audioEffects: Record<string, Media[]> = this._db.getData(this.getPathForType('AUDIO'));
+
+		Object.values(audioEffects).forEach(medias => {
+			medias.forEach(media => media.played = false);
+		});
+		this._db.push(this.getPathForType('AUDIO'), audioEffects, true);
+	}
+
 	public getUnplayedMedia(effect_id: string, type: MediaType): Media {
 		const media: Media[] = this.getCopy(this.getAllMedia(effect_id, type));
 		if (!media.length) {
