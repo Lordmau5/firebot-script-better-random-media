@@ -1,116 +1,97 @@
 <eos-container header="Type">
-	<firebot-radios
-		options="{ local: 'Local file', folderRandom: 'Random from folder' }"
-		model="effect.videoType"
-		inline="true"
-		style="padding-bottom: 5px;"
-	/>
+	<firebot-radios options="{ local: 'Local file', folderRandom: 'Random from folder' }" model="effect.videoType"
+		inline="true" style="padding-bottom: 5px;" />
 </eos-container>
 
 <eos-container header="Video">
-    <div style="padding-bottom: 10px">
-        <div ng-if="effect.videoType == 'local'">
-            <video width="350" controls ng-src="{{effect.file}}">
-            </video>
-        </div>
-        <div ng-if="effect.videoType == 'folderRandom'">
-            <img src="../images/placeholders/video.png" style="width: 350px;object-fit: scale-down;background: #d7d7d7">
-        </div>
-    </div>
+	<div style="padding-bottom: 10px">
+		<div ng-if="effect.videoType == 'local'">
+			<video width="350" controls ng-src="{{effect.file}}">
+			</video>
+		</div>
+		<div ng-if="effect.videoType == 'folderRandom'">
+			<img src="../images/placeholders/video.png" style="width: 350px;object-fit: scale-down;background: #d7d7d7">
+		</div>
+	</div>
 
-    <div ng-show="effect.videoType == 'local'" class="input-group">
-        <file-chooser
-            model="effect.file"
-            options="{ filters: [ {name: 'Video', extensions: ['mp4', 'webm', 'ogv']} ]}"
-        ></file-chooser>
-    </div>
-    <div ng-show="effect.videoType == 'folderRandom'" class="input-group">
-        <file-chooser
-            model="effect.folder"
-            options="{ directoryOnly: true, filters: [], title: 'Select Video Folder'}"
-        />
-    </div>
+	<div ng-show="effect.videoType == 'local'" class="input-group">
+		<file-chooser model="effect.file"
+			options="{ filters: [ {name: 'Video', extensions: ['mp4', 'webm', 'ogv']} ]}"></file-chooser>
+	</div>
+	<div ng-show="effect.videoType == 'folderRandom'" class="input-group">
+		<file-chooser model="effect.folder"
+			options="{ directoryOnly: true, filters: [], title: 'Select Video Folder'}" />
+	</div>
 </eos-container>
 
 <eos-container header="Clear Played Videos" ng-if="effect.videoType == 'folderRandom'" pad-top="true">
-    <p>
-        This will clear the played videos cache.
-        <br>
-        Useful in case you want to let ALL videos play again without having to wait for them to appear naturally.
-    </p>
-    <button type="button" class="btn btn-default" ng-click="clearVideosPlayed();" ng-disabled="playedVideosCleared">
-        <span>Clear Played Videos</span>
-    </button>
-    <p>
-        <div ng-if="playedData.status === 'fetching'">
-            <strong><em>Fetching unplayed videos...</em></strong>
-        </div>
-        <div ng-if="playedData.status === 'success'">
-            <strong>{{playedData.played}}/{{playedData.total}}</strong> videos have been played.
-        </div>
-    </p>
-    <p ng-if="playedVideosCleared">
-        <strong>Played videos cache has been cleared.</strong>
-    </p>
+	<p>
+		This will clear the played videos cache.
+		<br>
+		Useful in case you want to let ALL videos play again without having to wait for them to appear naturally.
+	</p>
+	<button type="button" class="btn btn-default" ng-click="clearVideosPlayed();" ng-disabled="playedVideosCleared">
+		<span>Clear Played Videos</span>
+	</button>
+	<p>
+	<div ng-if="playedData.status === 'fetching'">
+		<strong><em>Fetching unplayed videos...</em></strong>
+	</div>
+	<div ng-if="playedData.status === 'success'">
+		<strong>{{playedData.played}}/{{playedData.total}}</strong> videos have been played.
+	</div>
+	</p>
+	<p ng-if="playedVideosCleared">
+		<strong>Played videos cache has been cleared.</strong>
+	</p>
 </eos-container>
 
 <eos-container header="Duration" pad-top="true">
-    <div class="input-group">
-        <span class="input-group-addon">Seconds</span>
-        <input
-            type="text"
-            class="form-control"
-            aria-describedby="video-length-effect-type"
-            placeholder="Optional"
-            replace-variables="number"
-            ng-model="effect.length">
-    </div>
-    <label class="control-fb control--checkbox" style="margin-top:15px;"> Loop <tooltip text="'Loop the video until the duration is reached.'"></tooltip>
-        <input type="checkbox" ng-model="effect.loop" ng-disabled="effect.wait">
-        <div class="control__indicator"></div>
-    </label>
-    <label class="control-fb control--checkbox" style="margin-top:15px;"> Wait for video to finish <tooltip text="'Wait for the video to finish before allowing the next effect to play.'"></tooltip>
-        <input type="checkbox" ng-model="effect.wait" ng-change="waitChange()">
-        <div class="control__indicator"></div>
-    </label>
+	<div class="input-group">
+		<span class="input-group-addon">Seconds</span>
+		<input type="text" class="form-control" aria-describedby="video-length-effect-type" placeholder="Optional"
+			replace-variables="number" ng-model="effect.length">
+	</div>
+	<label class="control-fb control--checkbox" style="margin-top:15px;"> Loop <tooltip
+			text="'Loop the video until the duration is reached.'"></tooltip>
+		<input type="checkbox" ng-model="effect.loop" ng-disabled="effect.wait">
+		<div class="control__indicator"></div>
+	</label>
+	<label class="control-fb control--checkbox" style="margin-top:15px;"> Wait for video to finish <tooltip
+			text="'Wait for the video to finish before allowing the next effect to play.'"></tooltip>
+		<input type="checkbox" ng-model="effect.wait" ng-change="waitChange()">
+		<div class="control__indicator"></div>
+	</label>
 </eos-container>
 
 <eos-container header="Volume" pad-top="true">
-    <div class="volume-slider-wrapper">
-        <i class="fal fa-volume-down volume-low"></i>
-        <rzslider rz-slider-model="effect.volume" rz-slider-options="{floor: 0, ceil: 10, hideLimitLabels: true}"></rzslider>
-        <i class="fal fa-volume-up volume-high"></i>
-    </div>
+	<div class="volume-slider-wrapper">
+		<i class="fal fa-volume-down volume-low"></i>
+		<rzslider rz-slider-model="effect.volume" rz-slider-options="{floor: 0, ceil: 10, hideLimitLabels: true}">
+		</rzslider>
+		<i class="fal fa-volume-up volume-high"></i>
+	</div>
 </eos-container>
 
 <eos-overlay-position effect="effect" pad-top="true"></eos-overlay-position>
 
 <eos-container header="Size" pad-top="true">
-    <label class="control-fb control--checkbox"> Force 16:9 Ratio
-        <input type="checkbox" ng-click="forceRatioToggle();" ng-checked="forceRatio">
-        <div class="control__indicator"></div>
-    </label>
-    <div class="input-group">
-        <span class="input-group-addon">Width (in pixels)</span>
-        <input
-            type="text"
-            class="form-control"
-            aria-describeby="video-width-setting-type"
-            type="number"
-            ng-change="calculateSize('Width', effect.width)"
-            ng-model="effect.width">
-        <span class="input-group-addon">Height (in pixels)</span>
-        <input
-            type="text"
-            class="form-control"
-            aria-describeby="video-height-setting-type"
-            type="number"
-            ng-change="calculateSize('Height', effect.height)"
-            ng-model="effect.height">
-    </div>
-    <div class="effect-info alert alert-info">
-        Just put numbers in the fields (ex: 250). This will set the max width/height of the video and scale it down proportionally.
-    </div>
+	<label class="control-fb control--checkbox"> Force 16:9 Ratio
+		<input type="checkbox" ng-click="forceRatioToggle();" ng-checked="forceRatio">
+		<div class="control__indicator"></div>
+	</label>
+	<div class="input-group">
+		<span class="input-group-addon">Width (in pixels)</span>
+		<input type="text" class="form-control" aria-describeby="video-width-setting-type" type="number"
+			ng-change="calculateSize('Width', effect.width)" ng-model="effect.width">
+		<span class="input-group-addon">Height (in pixels)</span>
+		<input type="text" class="form-control" aria-describeby="video-height-setting-type" type="number"
+			ng-change="calculateSize('Height', effect.height)" ng-model="effect.height">
+	</div>
+	<div class="effect-info alert alert-info">
+		Just put numbers in the fields (ex: 250). This will set the max width/height of the video and scale it down
+		proportionally.
+	</div>
 </eos-container>
 
 <eos-enter-exit-animations effect="effect" pad-top="true"></eos-enter-exit-animations>
@@ -118,9 +99,12 @@
 <eos-overlay-instance effect="effect" pad-top="true"></eos-overlay-instance>
 
 <eos-container>
-    <div class="effect-info alert alert-warning">
-        This effect requires the Firebot overlay to be loaded in your broadcasting software. <a href ng-click="showOverlayInfoModal(effect.overlayInstance)" style="text-decoration:underline">Learn more</a>
-        <br>
-        <strong>NOTE</strong>: Streamlabs Desktop (formerly known as SLOBS) does not support mp4 videos in their browser source. If you have mp4 videos that you want to display in Streamlabs Desktop, you will need to convert them to the <strong>.webm</strong> format.
-    </div>
+	<div class="effect-info alert alert-warning">
+		This effect requires the Firebot overlay to be loaded in your broadcasting software. <a href
+			ng-click="showOverlayInfoModal(effect.overlayInstance)" style="text-decoration:underline">Learn more</a>
+		<br>
+		<strong>NOTE</strong>: Streamlabs Desktop (formerly known as SLOBS) does not support mp4 videos in their browser
+		source. If you have mp4 videos that you want to display in Streamlabs Desktop, you will need to convert them to
+		the <strong>.webm</strong> format.
+	</div>
 </eos-container>

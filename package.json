@@ -1,7 +1,7 @@
 {
 	"name": "firebot-script-better-random-media",
 	"scriptOutputName": "better-random-media",
-	"version": "1.1.0",
+	"version": "1.1.1",
 	"description": "A custom script that adds an improved 'Play Random Video' and 'Play Random Sound' effect with proper folder randomness and effect output support.",
 	"main": "",
 	"scripts": {
@@ -13,11 +13,11 @@
 	"author": "Lordmau5",
 	"license": "GNU3",
 	"devDependencies": {
-		"@crowbartools/firebot-custom-scripts-types": "^5.60.1",
+		"@crowbartools/firebot-custom-scripts-types": "^5.63.1",
 		"@stylistic/eslint-plugin": "^1.5.4",
 		"@types/fs-extra": "^11.0.4",
 		"@types/jest": "^29.5.11",
-		"@types/node": "^18.18.2",
+		"@types/node": "^20.14.0",
 		"@types/uuid": "^9.0.7",
 		"@types/webpack-env": "^1.18.1",
 		"@typescript-eslint/eslint-plugin": "^6.19.0",
@@ -37,7 +37,7 @@
 		"webpack-cli": "^5.1.4"
 	},
 	"volta": {
-		"node": "18.18.2",
-		"npm": "10.2.4"
+		"node": "20.14.0",
+		"npm": "10.8.1"
 	}
 }

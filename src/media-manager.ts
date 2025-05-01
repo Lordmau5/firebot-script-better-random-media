@@ -70,7 +70,7 @@ class MediaManager {
 	private updateDatabase(effect_id: string, type: MediaType, media: Media[]): void {
 		const pathForType = this.getPathForType(type);
 
-		this._db.push(`${ pathForType }${ effect_id }`, media, true);
+		this._db.push(`${pathForType}${effect_id}`, media, true);
 	}
 
 	private getPathForType(type: MediaType): string {
@@ -92,7 +92,7 @@ class MediaManager {
 		let media: Media[] = [];
 		try {
 			// Try to get the media from the database
-			media = this._db.getData(`${ pathForType }${ effect_id }`);
+			media = this._db.getData(`${pathForType}${effect_id}`);
 		}
 		catch (err) {
 			// If there is no media in the database, set the media to an empty array
@@ -143,7 +143,7 @@ class MediaManager {
 
 		// Get a random media from the media array that isn't played
 		let unplayedMedia = media.filter(_media => !_media.played);
-		this._modules.logger.debug(`Found ${ unplayedMedia.length } unplayed media for ${ effect_id }.`);
+		this._modules.logger.debug(`Found ${unplayedMedia.length} unplayed media for ${effect_id}.`);
 		if (!unplayedMedia.length) {
 			media.forEach(_media => _media.played = false);
 
@@ -171,7 +171,7 @@ class MediaManager {
 			files = await fs.readdir(effect_folder);
 		}
 		catch (err) {
-			modules.logger.error('Unable to read video folder', err);
+			modules.logger.error('Unable to read media folder', err);
 
 			return false;
 		}
@@ -193,7 +193,7 @@ class MediaManager {
 			};
 		});
 
-		this._modules.logger.debug(`Updating media for ${ effect_id }.`);
+		this._modules.logger.debug(`Updating media for ${effect_id}.`);
 		this.updateDatabase(effect_id, type, media);
 
 		return true;

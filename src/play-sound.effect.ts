@@ -41,13 +41,12 @@ const effect: EffectType<EffectModel & OverlayData> = {
 		name: 'Better Random Sound',
 		description: 'Improved version of the \'Play Random Sound\' effect with proper folder randomness and effect output support',
 		icon: 'fad fa-waveform',
-		categories: [ 'common' ],
-		// @ts-ignore
-		outputs: [ {
+		categories: ['common'],
+		outputs: [{
 			label: 'Sound Length',
 			description: 'The played sound length in seconds.',
 			defaultName: 'soundLength'
-		} ]
+		}]
 	},
 	optionsTemplate: template,
 	optionsController: ($scope, utilityService: any, backendCommunicator: any, $q: any, $timeout: any) => {
@@ -78,7 +77,7 @@ const effect: EffectType<EffectModel & OverlayData> = {
 			});
 
 		// Clear sounds played state
-		$scope.clearSoundsPlayed = function() {
+		$scope.clearSoundsPlayed = function () {
 			backendCommunicator.fireEvent('lordmau5:better-random-media:clear-media-played', {
 				effect_id: $scope.effect.id,
 				type: 'AUDIO'
@@ -207,9 +206,8 @@ const effect: EffectType<EffectModel & OverlayData> = {
 				const data = event;
 				// @ts-ignore
 				const token = encodeURIComponent(data.resourceToken);
-				const resourcePath = `http://${
-					window.location.hostname
-				}:7472/resource/${ token }`;
+				const resourcePath = `http://${window.location.hostname
+					}:7472/resource/${token}`;
 
 				// Generate UUID to use as class name.
 				// eslint-disable-next-line no-undef
@@ -231,7 +229,7 @@ const effect: EffectType<EffectModel & OverlayData> = {
 					mediaType = 'audio/flac';
 				}
 
-				const audioElement = `<audio id="${ uuid }" src="${ data.isUrl ? data.url : resourcePath }" type="${ mediaType }"></audio>`;
+				const audioElement = `<audio id="${uuid}" src="${data.isUrl ? data.url : resourcePath}" type="${mediaType}"></audio>`;
 
 				// Throw audio element on page.
 				// @ts-ignore
@@ -246,7 +244,7 @@ const effect: EffectType<EffectModel & OverlayData> = {
 
 				audio.onended = () => {
 					// @ts-ignore
-					$(`#${ uuid }`).remove();
+					$(`#${uuid}`).remove();
 				};
 			}
 		}

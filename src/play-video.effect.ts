@@ -82,13 +82,13 @@ const effect: EffectType<EffectModel & OverlayData> = {
 			'overlay'
 		],
 		// @ts-ignore
-		dependencies: [ 'overlay' ],
+		dependencies: ['overlay'],
 		// @ts-ignore
-		outputs: [ {
+		outputs: [{
 			label: 'Video Length',
 			description: 'The played video length in seconds.',
 			defaultName: 'videoLength'
-		} ]
+		}]
 	},
 	optionsTemplate: template,
 	optionsController: ($scope, utilityService: any, backendCommunicator: any, $q: any, $timeout: any) => {
@@ -97,7 +97,7 @@ const effect: EffectType<EffectModel & OverlayData> = {
 				$scope.effect.loop = false;
 			}
 		};
-		$scope.showOverlayInfoModal = function(overlayInstance: any) {
+		$scope.showOverlayInfoModal = function (overlayInstance: any) {
 			utilityService.showOverlayInfoModal(overlayInstance);
 		};
 
@@ -132,7 +132,7 @@ const effect: EffectType<EffectModel & OverlayData> = {
 			});
 
 		// Clear videos played state
-		$scope.clearVideosPlayed = function() {
+		$scope.clearVideosPlayed = function () {
 			backendCommunicator.fireEvent('lordmau5:better-random-media:clear-media-played', {
 				effect_id: $scope.effect.id,
 				type: 'VIDEO'
@@ -154,7 +154,7 @@ const effect: EffectType<EffectModel & OverlayData> = {
 
 		// Force ratio toggle
 		$scope.forceRatio = true;
-		$scope.forceRatioToggle = function() {
+		$scope.forceRatioToggle = function () {
 			if ($scope.forceRatio === true) {
 				$scope.forceRatio = false;
 			}
@@ -165,7 +165,7 @@ const effect: EffectType<EffectModel & OverlayData> = {
 
 		// Calculate 16:9
 		// This checks to see which field the user is filling out, and then adjust the other field so it's always 16:9.
-		$scope.calculateSize = function(widthOrHeight: 'Width' | 'Height', size: any) {
+		$scope.calculateSize = function (widthOrHeight: 'Width' | 'Height', size: any) {
 			if (size !== '') {
 				if (widthOrHeight === 'Width' && $scope.forceRatio === true) {
 					$scope.effect.height = String(Math.round((size / 16) * 9));
@@ -238,7 +238,7 @@ const effect: EffectType<EffectModel & OverlayData> = {
 				data.filepath = video.path;
 			}
 			else {
-				modules.logger.error('No videos were found in the selected video folder.');
+				modules.logger.error('No videos were found in the selected folder.');
 
 				return false;
 			}
@@ -338,12 +338,12 @@ const effect: EffectType<EffectModel & OverlayData> = {
 				const loop = data.loop;
 
 				const token = encodeURIComponent(data.resourceToken);
-				const filepathNew = `http://${ window.location.hostname }:7472/resource/${ token }`;
+				const filepathNew = `http://${window.location.hostname}:7472/resource/${token}`;
 
 				// Generate UUID to use as id
 				// @ts-ignore
 				const uuid = uuidv4();
-				const videoPlayerId = `${ uuid }-video`;
+				const videoPlayerId = `${uuid}-video`;
 
 				const enterAnimation = data.enterAnimation ? data.enterAnimation : 'fadeIn';
 				const exitAnimation = data.exitAnimation ? data.exitAnimation : 'fadeIn';
@@ -361,14 +361,14 @@ const effect: EffectType<EffectModel & OverlayData> = {
 				};
 
 				const sizeStyles
-					= (data.videoWidth ? `width: ${ data.videoWidth }px;` : '')
-					+ (data.videoHeight ? `height: ${ data.videoHeight }px;` : '');
+					= (data.videoWidth ? `width: ${data.videoWidth}px;` : '')
+					+ (data.videoHeight ? `height: ${data.videoHeight}px;` : '');
 
 				const loopAttribute = loop ? 'loop' : '';
 
 				const videoElement = `
-                    <video id="${ videoPlayerId }" class="player" ${ loopAttribute } style="display:none;${ sizeStyles }">
-                        <source src="${ filepathNew }" type="video/${ fileExt }">
+                    <video id="${videoPlayerId}" class="player" ${loopAttribute} style="display:none;${sizeStyles}">
+                        <source src="${filepathNew}" type="video/${fileExt}">
                     </video>
                 `;
 
@@ -385,12 +385,14 @@ const effect: EffectType<EffectModel & OverlayData> = {
 					videoVolume = 5;
 				}
 
-				videoVolume = parseInt(videoVolume) / 10;
+				videoVolume = parseInt(videoVolume) * 0.1;
 				// @ts-ignore
-				$(`#${ videoPlayerId }`).prop('volume', videoVolume);
+				const video = document.getElementById(videoPlayerId) as HTMLVideoElement;
+				video.volume = videoVolume;
+				// $(`#${videoPlayerId}`).prop('volume', videoVolume);
 
-				const video = document.getElementById(videoPlayerId);
-				video.oncanplay = function() {
+				// const video = document.getElementById(videoPlayerId);
+				video.oncanplay = function () {
 					// @ts-ignore
 					if (startedVidCache[this.id]) {
 						return;
@@ -407,15 +409,15 @@ const effect: EffectType<EffectModel & OverlayData> = {
 						console.log(err);
 					}
 					// @ts-ignore
-					const videoEl = $(`#${ videoPlayerId }`);
+					const videoEl = $(`#${videoPlayerId}`);
 					videoEl.show();
 
 					// @ts-ignore
-					$(`#${ wrapperId }`)
+					$(`#${wrapperId}`)
 						.find('.inner-position')
 						.animateCss(enterAnimation, enterDuration, null, null, () => {
 							// @ts-ignore
-							$(`#${ wrapperId }`)
+							$(`#${wrapperId}`)
 								.find('.inner-position')
 								.animateCss(inbetweenAnimation, inbetweenDuration, inbetweenDelay, inbetweenRepeat);
 						});
@@ -423,22 +425,22 @@ const effect: EffectType<EffectModel & OverlayData> = {
 					const exitVideo = () => {
 						// @ts-ignore
 						delete startedVidCache[this.id];
-						animateVideoExit(`#${ wrapperId }`, exitAnimation, exitDuration, inbetweenAnimation);
+						animateVideoExit(`#${wrapperId}`, exitAnimation, exitDuration, inbetweenAnimation);
 					};
 
 					// Remove div after X time.
 					if (videoDuration) {
-						setTimeout(function() {
+						setTimeout(function () {
 							exitVideo();
 						}, videoDuration);
 					}
 					else {
-						video.onended = function() {
+						video.onended = function () {
 							exitVideo();
 						};
 
 						// @ts-ignore
-						$(`#${ videoPlayerId }`).on('error', function() {
+						$(`#${videoPlayerId}`).on('error', function () {
 							exitVideo();
 						});
 					}
