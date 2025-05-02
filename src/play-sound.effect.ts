@@ -22,7 +22,7 @@ interface EffectModel {
 	file: string;
 	volume: number;
 
-	wait: boolean;
+	waitForSound: boolean;
 	loop: boolean;
 
 	folder: string;
@@ -180,7 +180,7 @@ const effect: EffectType<EffectModel & OverlayData> = {
 			renderWindow.webContents.send('playsound', data);
 		}
 
-		if (effect.wait) {
+		if (effect.waitForSound) {
 			let internalDuration: any = data.soundDuration;
 			if (internalDuration == null || internalDuration === 0 || internalDuration === '') {
 				internalDuration = duration;
