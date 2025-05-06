@@ -104,6 +104,10 @@ class MediaManager {
 	}
 
 	public setAllMediaUnplayed(effect_id: string, type: MediaType): void {
+		if (!this._db.exists(this.getPathForType(type))) {
+			return;
+		}
+
 		// Get all media from the database
 		const media: Media[] = this.getCopy(this.getAllMedia(effect_id, type));
 
@@ -120,19 +124,23 @@ class MediaManager {
 	}
 
 	public setAllEffectsUnplayed(): void {
-		const videoEffects: Record<string, Media[]> = this._db.getData(this.getPathForType('VIDEO'));
+		if (this._db.exists(this.getPathForType('VIDEO'))) {
+			const videoEffects: Record<string, Media[]> = this._db.getData(this.getPathForType('VIDEO'));
 
-		Object.values(videoEffects).forEach(medias => {
-			medias.forEach(media => media.played = false);
-		});
-		this._db.push(this.getPathForType('VIDEO'), videoEffects, true);
+			Object.values(videoEffects).forEach(medias => {
+				medias.forEach(media => media.played = false);
+			});
+			this._db.push(this.getPathForType('VIDEO'), videoEffects, true);
+		}
 
-		const audioEffects: Record<string, Media[]> = this._db.getData(this.getPathForType('AUDIO'));
+		if (this._db.exists(this.getPathForType('AUDIO'))) {
+			const audioEffects: Record<string, Media[]> = this._db.getData(this.getPathForType('AUDIO'));
 
-		Object.values(audioEffects).forEach(medias => {
-			medias.forEach(media => media.played = false);
-		});
-		this._db.push(this.getPathForType('AUDIO'), audioEffects, true);
+			Object.values(audioEffects).forEach(medias => {
+				medias.forEach(media => media.played = false);
+			});
+			this._db.push(this.getPathForType('AUDIO'), audioEffects, true);
+		}
 	}
 
 	public getUnplayedMedia(effect_id: string, type: MediaType): Media {
