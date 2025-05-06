@@ -20,7 +20,7 @@ const script: Firebot.CustomScript = {
 			name: 'Better Random Media',
 			description: 'A custom script that adds an improved \'Play Random Video\' and \'Play Random Sound\' effect with proper folder randomness and effect output support',
 			author: 'Lordmau5',
-			version: '1.1.1',
+			version: '1.1.3',
 			firebotVersion: '5'
 		};
 	},
