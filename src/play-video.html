@@ -24,6 +24,20 @@
 	</div>
 </eos-container>
 
+<eos-container header="Simple Random Logic" ng-if="effect.videoType === 'folderRandom'" pad-top="true">
+	<p>
+		Picks a video <strong>completely</strong> at random.
+		<br>
+		<br>
+		This means it can play the same video 3 times in a row instead of ensuring every video played at least once.
+	</p>
+
+	<label class="control-fb control--checkbox"> Enable simple random logic
+		<input type="checkbox" ng-model="effect.simpleRandomLogic">
+		<div class="control__indicator"></div>
+	</label>
+</eos-container>
+
 <eos-container header="Clear Played Videos" ng-if="effect.videoType == 'folderRandom'" pad-top="true">
 	<p>
 		This will clear the played videos cache.

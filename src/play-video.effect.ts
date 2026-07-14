@@ -27,6 +27,8 @@ interface EffectModel {
 
 	folder: string;
 	length: number;
+	simpleRandomLogic: boolean;
+
 	starttime: number;
 	enterAnimation: string;
 	enterDuration: number;
@@ -152,6 +154,10 @@ const effect: EffectType<EffectModel & OverlayData> = {
 			$scope.effect.volume = 5;
 		}
 
+		if ($scope.effect.simpleRandomLogic == null) {
+			$scope.effect.simpleRandomLogic = false;
+		}
+
 		// Force ratio toggle
 		$scope.forceRatio = true;
 		$scope.forceRatioToggle = function () {
@@ -221,8 +227,7 @@ const effect: EffectType<EffectModel & OverlayData> = {
 			inbetweenRepeat: effect.inbetweenRepeat,
 			customCoords: effect.customCoords,
 			loop: effect.loop === true,
-			// @ts-ignore
-			overlayInstance: null
+			overlayInstance: effect.overlayInstance
 		};
 
 		if (effect.videoType === 'folderRandom') {
@@ -232,7 +237,7 @@ const effect: EffectType<EffectModel & OverlayData> = {
 			}
 
 			// Get a random video from the videos array that isn't played
-			const video = mediaManager.getUnplayedMedia(effect.id, 'VIDEO');
+			const video = mediaManager.getUnplayedMedia(effect.id, 'VIDEO', effect.simpleRandomLogic);
 
 			if (video != null) {
 				data.filepath = video.path;
@@ -241,14 +246,6 @@ const effect: EffectType<EffectModel & OverlayData> = {
 				modules.logger.error('No videos were found in the selected folder.');
 
 				return false;
-			}
-		}
-
-		if (settings.useOverlayInstances()) {
-			if (effect.overlayInstance != null) {
-				if (settings.getOverlayInstances().includes(effect.overlayInstance)) {
-					data.overlayInstance = effect.overlayInstance;
-				}
 			}
 		}
 

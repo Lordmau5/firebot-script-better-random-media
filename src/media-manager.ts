@@ -143,10 +143,18 @@ class MediaManager {
 		}
 	}
 
-	public getUnplayedMedia(effect_id: string, type: MediaType): Media {
+	public getUnplayedMedia(effect_id: string, type: MediaType, skipUnplayedCheck: boolean = false): Media | undefined {
 		const media: Media[] = this.getCopy(this.getAllMedia(effect_id, type));
 		if (!media.length) {
-			return null;
+			return undefined;
+		}
+
+		// Skips unplayed check and just returns a completely random media file
+		if (skipUnplayedCheck) {
+			const randomIndex = Math.floor(Math.random() * media.length);
+			const randomMedia = media[randomIndex];
+
+			return randomMedia;
 		}
 
 		// Get a random media from the media array that isn't played
@@ -174,9 +182,9 @@ class MediaManager {
 		const dbMedia: Media[] = this.getCopy(this.getAllMedia(effect_id, type));
 
 		// Get all files in the effect folder
-		let files: string[] = [];
+		let files: fs.Dirent[] = [];
 		try {
-			files = await fs.readdir(effect_folder);
+			files = await fs.readdir(effect_folder, { withFileTypes: true });
 		}
 		catch (err) {
 			modules.logger.error('Unable to read media folder', err);
@@ -184,7 +192,9 @@ class MediaManager {
 			return false;
 		}
 
-		const paths = files.map(file => modules.path.join(effect_folder, file));
+		const paths = files
+			.map(file => file.isFile() ? modules.path.join(effect_folder, file.name) : undefined)
+			.filter(file => file != undefined);
 
 		// Get file sizes in parallel
 		const fileSizes = await Promise.all(paths.map(path => fs.stat(path).then(stat => stat.size)));

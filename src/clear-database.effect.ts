@@ -14,7 +14,7 @@ const wait = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
 interface EffectModel {
 	clearType: 'database' | 'effect';
-	effectId?: string;
+	effectId: string;
 }
 
 interface OverlayData {
@@ -27,7 +27,7 @@ const effect: EffectType<EffectModel & OverlayData> = {
 		name: 'Better Random Media - Clear Cache',
 		description: 'Clear the cache of played media files.',
 		icon: 'fad fa-eraser',
-		categories: [ 'common' ]
+		categories: ['common']
 	},
 	optionsTemplate: template,
 	optionsController: $scope => {

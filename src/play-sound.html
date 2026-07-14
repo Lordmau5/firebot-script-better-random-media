@@ -23,6 +23,21 @@
 		</div>
 	</eos-container>
 
+	<eos-container header="Simple Random Logic" ng-if="effect.soundType === 'folderRandom'" pad-top="true">
+		<p>
+			Picks a sound <strong>completely</strong> at random.
+			<br>
+
+			<br>
+			This means it can play the same sound 3 times in a row instead of ensuring every sound played at least once.
+		</p>
+
+		<label class="control-fb control--checkbox"> Enable simple random logic
+			<input type="checkbox" ng-model="effect.simpleRandomLogic">
+			<div class="control__indicator"></div>
+		</label>
+	</eos-container>
+
 	<eos-container header="Clear Played Sounds" ng-if="effect.soundType === 'folderRandom'" pad-top="true">
 		<p>
 			This will clear the played sounds cache.

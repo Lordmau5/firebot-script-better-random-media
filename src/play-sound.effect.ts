@@ -27,12 +27,18 @@ interface EffectModel {
 
 	folder: string;
 	length: number;
+	simpleRandomLogic: boolean;
 
 	audioOutputDevice: FirebotAudioOutputDevice;
 }
 
 interface OverlayData {
 	overlayInstance: string;
+	volume: number;
+	audioOutputDevice: {
+		deviceId: string;
+		label: string;
+	};
 }
 
 const effect: EffectType<EffectModel & OverlayData> = {
@@ -56,6 +62,10 @@ const effect: EffectType<EffectModel & OverlayData> = {
 
 		if ($scope.effect.volume == null) {
 			$scope.effect.volume = 5;
+		}
+
+		if ($scope.effect.simpleRandomLogic == null) {
+			$scope.effect.simpleRandomLogic = false;
 		}
 
 		// Request played sound count
@@ -114,11 +124,13 @@ const effect: EffectType<EffectModel & OverlayData> = {
 			soundDuration: effect.length,
 			volume: effect.volume,
 			loop: effect.loop === true,
-			// @ts-ignore
-			audioOutputDevice: null,
-			// @ts-ignore
-			overlayInstance: null
+			audioOutputDevice: effect.audioOutputDevice,
+			overlayInstance: effect.overlayInstance
 		};
+
+		if (data.audioOutputDevice == null || data.audioOutputDevice.label === 'App Default') {
+			data.audioOutputDevice = settings.getAudioOutputDevice();
+		}
 
 		if (effect.soundType === 'folderRandom') {
 			// Update the sounds in the database
@@ -127,7 +139,7 @@ const effect: EffectType<EffectModel & OverlayData> = {
 			}
 
 			// Get a random sound from the sounds array that isn't played
-			const sound = mediaManager.getUnplayedMedia(effect.id, 'AUDIO');
+			const sound = mediaManager.getUnplayedMedia(effect.id, 'AUDIO', effect.simpleRandomLogic);
 
 			if (sound != null) {
 				data.filepath = sound.path;
@@ -136,14 +148,6 @@ const effect: EffectType<EffectModel & OverlayData> = {
 				modules.logger.error('No sounds were found in the selected folder.');
 
 				return false;
-			}
-		}
-
-		if (settings.useOverlayInstances()) {
-			if (effect.overlayInstance != null) {
-				if (settings.getOverlayInstances().includes(effect.overlayInstance)) {
-					data.overlayInstance = effect.overlayInstance;
-				}
 			}
 		}
 
@@ -235,17 +239,17 @@ const effect: EffectType<EffectModel & OverlayData> = {
 				// @ts-ignore
 				$('#wrapper').append(audioElement);
 
-				const audio = document.getElementById(uuid);
-				// @ts-ignore
-				audio.volume = parseFloat(data.volume) / 10;
+				const audio = document.getElementById(uuid) as HTMLAudioElement;
+				if (audio) {
+					audio.volume = parseFloat(data.volume) / 10;
 
-				// @ts-ignore
-				audio.oncanplay = () => audio.play();
+					audio.oncanplay = () => audio.play();
 
-				audio.onended = () => {
-					// @ts-ignore
-					$(`#${uuid}`).remove();
-				};
+					audio.onended = () => {
+						// @ts-ignore
+						$(`#${uuid}`).remove();
+					};
+				}
 			}
 		}
 	}
