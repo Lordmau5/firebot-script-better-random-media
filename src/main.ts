@@ -1,55 +1,30 @@
+import { Plugin } from "@crowbartools/firebot-types";
+
+import clearDatabaseEffect from './clear-database-effect';
+import playSoundEffect from './play-sound-effect';
+import playVideoEffect from './play-video-effect';
+
 import {
-	Firebot, ScriptModules
-} from '@crowbartools/firebot-custom-scripts-types';
-import {
-	EventSource
-} from '@crowbartools/firebot-custom-scripts-types/types/modules/event-manager';
-import {
-	FirebotSettings
-} from '@crowbartools/firebot-custom-scripts-types/types/settings';
-import {
-	autoload
-} from './autoload';
-import {
-	createMediaManager
+	mediaManager
 } from './media-manager';
 
-const script: Firebot.CustomScript = {
-	getScriptManifest: () => {
-		return {
-			name: 'Better Random Media',
-			description: 'A custom script that adds an improved \'Play Random Video\' and \'Play Random Sound\' effect with proper folder randomness and effect output support',
-			author: 'Lordmau5',
-			version: '1.1.5',
-			firebotVersion: '5'
-		};
+const script: Plugin = {
+	manifest: {
+		name: 'Better Random Media',
+		description: 'A custom plugin that adds an alternative \'Play Random Video\' and \'Play Random Sound\' effect with proper folder randomness and effect output support',
+		author: 'Lordmau5',
+		version: '1.2.0',
+		repo: 'https://github.com/Lordmau5/firebot-script-better-random-media',
+		icon: {
+			type: "font-awesome",
+			name: "fa-random",
+			color: "#7c42e8",
+		},
 	},
-	getDefaultParameters: () => {
-		return {
-		};
+	registers: {
+		effects: [clearDatabaseEffect, playSoundEffect, playVideoEffect],
+		frontendListeners: mediaManager.frontendListeners
 	},
-	run: async runRequest => {
-		const eventSource: EventSource = {
-			id: 'lordmau5:better-random-media',
-			name: 'Better Random Media',
-			events: []
-		};
-		autoload(runRequest.modules, eventSource);
-		modules = runRequest.modules;
-		settings = runRequest.firebot.settings;
-
-		try {
-			createMediaManager(modules.path.join(SCRIPTS_DIR, '..', 'db', 'betterRandomMedia.db'), modules);
-		}
-		catch (error) {
-			// eslint-disable-next-line no-debugger
-			debugger;
-		}
-	}
 };
-
-export let modules: ScriptModules;
-
-export let settings: FirebotSettings;
 
 export default script;

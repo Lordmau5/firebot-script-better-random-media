@@ -1,66 +1,63 @@
-import {
-	ScriptModules
-} from '@crowbartools/firebot-custom-scripts-types';
+import firebot, { FrontendListener } from '@crowbartools/firebot-types';
+
 import {
 	JsonDB
 } from 'node-json-db';
 import Media, {
 	MediaType
 } from './@types/Media';
-import {
-	modules
-} from './main';
 
 import * as fs from 'fs-extra';
+import path from 'path';
 
 class MediaManager {
 	private _db: JsonDB;
 
-	private _modules: ScriptModules;
+	public frontendListeners: FrontendListener[];
 
-	constructor(path: string, modules: ScriptModules) {
-		this._modules = modules;
-		// @ts-ignore
-		// filePath, saveOnPush, humanReadable
-		this._db = new modules.JsonDb(path, true, true);
+	constructor() {
+		this._db = new JsonDB(path.join(firebot.storage.path, '..', '..', 'db', 'betterRandomMedia.db'), true, true);
 
-		// Clear played media for effect ID
-		modules.frontendCommunicator.on(
-			'lordmau5:better-random-media:clear-media-played',
-			args => {
-				const {
-					effect_id,
-					type
-				}: {
-					effect_id: string,
-					type: MediaType
-				} = args as any;
+		this.frontendListeners = [
+			// Clear played media for effect ID
+			{
+				eventName: 'lordmau5:better-random-media:clear-media-played',
+				handler: async (args) => {
+					const {
+						effect_id,
+						type
+					}: {
+						effect_id: string,
+						type: MediaType
+					} = args as any;
 
-				this.setAllMediaUnplayed(effect_id, type);
+					mediaManager.setAllMediaUnplayed(effect_id, type);
+				},
+				useAsync: true
+			},
+			// Request played media count
+			{
+				eventName: 'lordmau5:better-random-media:request-played-media-count',
+				handler: async (args) => {
+					const {
+						effect_id,
+						type
+					}: {
+						effect_id: string,
+						type: MediaType
+					} = args as any;
+
+					const media: Media[] = mediaManager.getCopy(mediaManager.getAllMedia(effect_id, type));
+					const playedMedia = media.filter(_media => _media.played);
+
+					return {
+						played: playedMedia.length,
+						total: media.length
+					};
+				},
+				useAsync: true
 			}
-		);
-
-		// Request played media count
-		modules.frontendCommunicator.onAsync(
-			'lordmau5:better-random-media:request-played-media-count',
-			async args => {
-				const {
-					effect_id,
-					type
-				}: {
-					effect_id: string,
-					type: MediaType
-				} = args as any;
-
-				const media: Media[] = this.getCopy(this.getAllMedia(effect_id, type));
-				const playedMedia = media.filter(_media => _media.played);
-
-				return {
-					played: playedMedia.length,
-					total: media.length
-				};
-			}
-		);
+		];
 	}
 
 	private getCopy(json_data: any): any {
@@ -159,7 +156,7 @@ class MediaManager {
 
 		// Get a random media from the media array that isn't played
 		let unplayedMedia = media.filter(_media => !_media.played);
-		this._modules.logger.debug(`Found ${unplayedMedia.length} unplayed media for ${effect_id}.`);
+		firebot.logger.debug(`Found ${unplayedMedia.length} unplayed media for ${effect_id}.`);
 		if (!unplayedMedia.length) {
 			media.forEach(_media => _media.played = false);
 
@@ -187,13 +184,13 @@ class MediaManager {
 			files = await fs.readdir(effect_folder, { withFileTypes: true });
 		}
 		catch (err) {
-			modules.logger.error('Unable to read media folder', err);
+			firebot.logger.error('Unable to read media folder', err);
 
 			return false;
 		}
 
 		const paths = files
-			.map(file => file.isFile() ? modules.path.join(effect_folder, file.name) : undefined)
+			.map(file => file.isFile() ? path.join(effect_folder, file.name) : undefined)
 			.filter(file => file != undefined);
 
 		// Get file sizes in parallel
@@ -211,20 +208,11 @@ class MediaManager {
 			};
 		});
 
-		this._modules.logger.debug(`Updating media for ${effect_id}.`);
+		firebot.logger.debug(`Updating media for ${effect_id}.`);
 		this.updateDatabase(effect_id, type, media);
 
 		return true;
 	}
 }
 
-export let mediaManager: MediaManager;
-
-export function createMediaManager(path: string, modules: ScriptModules) {
-	if (mediaManager != null) {
-		return mediaManager;
-	}
-	mediaManager = new MediaManager(path, modules);
-
-	return mediaManager;
-}
+export const mediaManager: MediaManager = new MediaManager();

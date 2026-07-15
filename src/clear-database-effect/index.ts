@@ -1,14 +1,9 @@
-import {
-	Effects
-} from '@crowbartools/firebot-custom-scripts-types/types/effects';
-import {
-	modules, settings
-} from './main';
-import template from './clear-database.html';
+import firebot, { EffectType, EffectScope, FirebotAudioDevice } from '@crowbartools/firebot-types';
+
+import template from './template.html';
 import {
 	mediaManager
-} from './media-manager';
-import EffectType = Effects.EffectType;
+} from '../media-manager';
 
 const wait = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 

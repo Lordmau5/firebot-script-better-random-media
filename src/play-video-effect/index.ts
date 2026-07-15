@@ -1,14 +1,9 @@
-import {
-	Effects
-} from '@crowbartools/firebot-custom-scripts-types/types/effects';
-import {
-	modules, settings
-} from './main';
-import template from './play-video.html';
+import firebot, { EffectType, EffectScope, FirebotAudioDevice } from '@crowbartools/firebot-types';
+
+import template from './template.html';
 import {
 	mediaManager
-} from './media-manager';
-import EffectType = Effects.EffectType;
+} from '../media-manager';
 
 const wait = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
@@ -24,6 +19,8 @@ interface EffectModel {
 	position: string;
 	height: string;
 	width: string;
+
+	volume: number;
 
 	folder: string;
 	length: number;
@@ -93,7 +90,7 @@ const effect: EffectType<EffectModel & OverlayData> = {
 		}]
 	},
 	optionsTemplate: template,
-	optionsController: ($scope, utilityService: any, backendCommunicator: any, $q: any, $timeout: any) => {
+	optionsController: ($scope: EffectScope<EffectModel>, utilityService: any, backendCommunicator: any, $q: any, $timeout: any) => {
 		$scope.waitChange = () => {
 			if ($scope.effect.wait) {
 				$scope.effect.loop = false;
@@ -135,7 +132,7 @@ const effect: EffectType<EffectModel & OverlayData> = {
 
 		// Clear videos played state
 		$scope.clearVideosPlayed = function () {
-			backendCommunicator.fireEvent('lordmau5:better-random-media:clear-media-played', {
+			backendCommunicator.fireEventAsync('lordmau5:better-random-media:clear-media-played', {
 				effect_id: $scope.effect.id,
 				type: 'VIDEO'
 			});
@@ -145,9 +142,8 @@ const effect: EffectType<EffectModel & OverlayData> = {
 			$scope.playedData.played = 0;
 		};
 
-
 		if ($scope.effect.videoType == null) {
-			$scope.effect.videoType = 'local';
+			$scope.effect.videoType = 'folderRandom';
 		}
 
 		if ($scope.effect.volume == null) {
@@ -199,8 +195,8 @@ const effect: EffectType<EffectModel & OverlayData> = {
 
 		return errors;
 	},
-	onTriggerEvent: async scope => {
-		const effect = scope.effect;
+	onTriggerEvent: async event => {
+		const effect = event.effect;
 
 		// What should this do when triggered.
 		let position = effect.position;
@@ -227,7 +223,8 @@ const effect: EffectType<EffectModel & OverlayData> = {
 			inbetweenRepeat: effect.inbetweenRepeat,
 			customCoords: effect.customCoords,
 			loop: effect.loop === true,
-			overlayInstance: effect.overlayInstance
+			overlayInstance: effect.overlayInstance,
+			resourceToken: ''
 		};
 
 		if (effect.videoType === 'folderRandom') {
@@ -243,14 +240,14 @@ const effect: EffectType<EffectModel & OverlayData> = {
 				data.filepath = video.path;
 			}
 			else {
-				modules.logger.error('No videos were found in the selected folder.');
+				firebot.logger.error('No videos were found in the selected folder.');
 
 				return false;
 			}
 		}
 
 		let duration;
-		const result: any = await modules.frontendCommunicator.fireEventAsync('getVideoDuration', data.filepath);
+		const result: any = await firebot.frontendCommunicator.fireEventAsync('getVideoDuration', data.filepath);
 		if (!isNaN(result)) {
 			duration = result;
 		}
@@ -258,13 +255,12 @@ const effect: EffectType<EffectModel & OverlayData> = {
 		data.videoDuration = duration;
 
 		// Generate token if going to overlay, otherwise send to gui.
-		// @ts-ignore
-		data.resourceToken = modules.resourceTokenManager.storeResourcePath(
+		data.resourceToken = firebot.webServer.createResourceToken(
 			data.filepath,
 			Math.max(1, duration)
 		);
 		// send event to the overlay
-		modules.httpServer.sendToOverlay('lordmau5:better-random-media:video', data);
+		event.sendDataToOverlay(data, effect.overlayInstance);
 
 		if (effect.wait) {
 			let internalDuration: any = data.videoDuration;

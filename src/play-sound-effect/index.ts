@@ -1,17 +1,9 @@
-import {
-	Effects
-} from '@crowbartools/firebot-custom-scripts-types/types/effects';
-import {
-	modules, settings
-} from './main';
-import template from './play-sound.html';
+import firebot, { EffectType, EffectScope, FirebotAudioDevice } from '@crowbartools/firebot-types';
+
+import template from './template.html';
 import {
 	mediaManager
-} from './media-manager';
-import EffectType = Effects.EffectType;
-import {
-	FirebotAudioOutputDevice
-} from '@crowbartools/firebot-custom-scripts-types/types/settings.js';
+} from '../media-manager';
 
 const wait = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
@@ -29,7 +21,7 @@ interface EffectModel {
 	length: number;
 	simpleRandomLogic: boolean;
 
-	audioOutputDevice: FirebotAudioOutputDevice;
+	audioOutputDevice: FirebotAudioDevice;
 }
 
 interface OverlayData {
@@ -55,9 +47,9 @@ const effect: EffectType<EffectModel & OverlayData> = {
 		}]
 	},
 	optionsTemplate: template,
-	optionsController: ($scope, utilityService: any, backendCommunicator: any, $q: any, $timeout: any) => {
+	optionsController: ($scope: EffectScope<EffectModel>, utilityService: any, backendCommunicator: any, $q: any, $timeout: any) => {
 		if ($scope.effect.soundType == null) {
-			$scope.effect.soundType = 'local';
+			$scope.effect.soundType = 'folderRandom';
 		}
 
 		if ($scope.effect.volume == null) {
@@ -88,7 +80,7 @@ const effect: EffectType<EffectModel & OverlayData> = {
 
 		// Clear sounds played state
 		$scope.clearSoundsPlayed = function () {
-			backendCommunicator.fireEvent('lordmau5:better-random-media:clear-media-played', {
+			backendCommunicator.fireEventAsync('lordmau5:better-random-media:clear-media-played', {
 				effect_id: $scope.effect.id,
 				type: 'AUDIO'
 			});
@@ -111,8 +103,8 @@ const effect: EffectType<EffectModel & OverlayData> = {
 
 		return errors;
 	},
-	onTriggerEvent: async scope => {
-		const effect = scope.effect;
+	onTriggerEvent: async event => {
+		const effect = event.effect;
 
 		if (effect.soundType == null) {
 			effect.soundType = 'local';
@@ -125,11 +117,12 @@ const effect: EffectType<EffectModel & OverlayData> = {
 			volume: effect.volume,
 			loop: effect.loop === true,
 			audioOutputDevice: effect.audioOutputDevice,
-			overlayInstance: effect.overlayInstance
+			overlayInstance: effect.overlayInstance,
+			resourceToken: ''
 		};
 
 		if (data.audioOutputDevice == null || data.audioOutputDevice.label === 'App Default') {
-			data.audioOutputDevice = settings.getAudioOutputDevice();
+			data.audioOutputDevice = firebot.settings.getSetting('AudioOutputDevice') as FirebotAudioDevice;
 		}
 
 		if (effect.soundType === 'folderRandom') {
@@ -145,14 +138,14 @@ const effect: EffectType<EffectModel & OverlayData> = {
 				data.filepath = sound.path;
 			}
 			else {
-				modules.logger.error('No sounds were found in the selected folder.');
+				firebot.logger.error('No sounds were found in the selected folder.');
 
 				return false;
 			}
 		}
 
 		let duration;
-		const result: any = await modules.frontendCommunicator.fireEventAsync('getSoundDuration', {
+		const result: any = await firebot.frontendCommunicator.fireEventAsync('getSoundDuration', {
 			path: data.filepath
 		});
 		if (!isNaN(result)) {
@@ -164,20 +157,19 @@ const effect: EffectType<EffectModel & OverlayData> = {
 		// Set output device.
 		let selectedOutputDevice = effect.audioOutputDevice;
 		if (selectedOutputDevice == null || selectedOutputDevice.label === 'App Default') {
-			selectedOutputDevice = settings.getAudioOutputDevice();
+			selectedOutputDevice = firebot.settings.getSetting('AudioOutputDevice') as FirebotAudioDevice;
 		}
 		data.audioOutputDevice = selectedOutputDevice;
 
 		// Generate token if going to overlay, otherwise send to gui.
 		if (selectedOutputDevice.deviceId === 'overlay') {
-			// @ts-ignore
-			data.resourceToken = modules.resourceTokenManager.storeResourcePath(
+			data.resourceToken = firebot.webServer.createResourceToken(
 				data.filepath,
 				Math.max(1, duration)
 			);
 
 			// send event to the overlay
-			modules.httpServer.sendToOverlay('lordmau5:better-random-media:sound', data);
+			event.sendDataToOverlay(data, effect.overlayInstance);
 		}
 		else {
 			// Send data back to media.js in the gui.
