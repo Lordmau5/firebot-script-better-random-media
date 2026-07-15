@@ -2,7 +2,7 @@
 	"name": "firebot-script-better-random-media",
 	"pluginOutputName": "better-random-media",
 	"version": "1.2.0",
-	"description": "A custom script that adds an improved 'Play Random Video' and 'Play Random Sound' effect with proper folder randomness and effect output support.",
+	"description": "Adds an alternative 'Play Random Video' and 'Play Random Sound' effect with proper folder randomness and effect output support to Firebot",
 	"main": "",
 	"scripts": {
 		"build": "tsdown",

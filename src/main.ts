@@ -11,7 +11,7 @@ import {
 const script: Plugin = {
 	manifest: {
 		name: 'Better Random Media',
-		description: 'A custom plugin that adds an alternative \'Play Random Video\' and \'Play Random Sound\' effect with proper folder randomness and effect output support',
+		description: "Adds an alternative 'Play Random Video' and 'Play Random Sound' effect with proper folder randomness and effect output support to Firebot",
 		author: 'Lordmau5',
 		version: '1.2.0',
 		repo: 'https://github.com/Lordmau5/firebot-script-better-random-media',
